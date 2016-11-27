@@ -24,3 +24,5 @@ model.add(Dense(1))
 # TODO
 * support batch learning
 * visualize
+
+some codes in features.py are borrow from original implementation (https://github.com/HIPS/neural-fingerprint) 
