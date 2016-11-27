@@ -109,22 +109,3 @@ def gen_feature_vector(mol):
     return np.hstack([n_atoms, atom_feature, adj_mat, bond_feature])
 
 
-if __name__ == '__main__':
-    mol = Chem.MolFromSmiles('CC(N)C')
-    vec = gen_feature_vector(mol)
-    print(vec)
-    print(vec.shape)
-
-
-    sm = [x.strip() for x in open("./smiles.txt").readlines()]
-    data_raw = [ gen_feature_vector(Chem.MolFromSmiles(x)) for x in sm]
-    max_len = max([x.shape for x in data_raw])[0]
-    print(max_len)
-    data = np.zeros([len(data_raw), max_len])
-    for i, row in enumerate(data_raw):
-        data[i,:row.shape[0]] = row
-    
-    data = np.vstack(data)
-    print(data.shape)
-    np.save("data",data)
-
