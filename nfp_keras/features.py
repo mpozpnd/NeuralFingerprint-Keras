@@ -108,4 +108,18 @@ def gen_feature_vector(mol):
     bond_feature = getnBondFeatureMatrix(mol)
     return np.hstack([n_atoms, atom_feature, adj_mat, bond_feature])
 
+def gen_feature_vector_from_sdf(sdf):
+    suppl = Chem.SDMolSupplier(sdf)
+    raw_f = []
+    for m in suppl:
+        try:
+            raw_f.append(gen_feature_vector(m))
+        except Exception as e:
+            print(e.message)
+            continue
+    max_len = max([x.shape for x in raw_f])[0]
+    features = np.zeros([len(raw_f), max_len])
 
+    for i, row in enumerate(raw_f):
+        features[i, :row.shape[0]] = row
+    return features

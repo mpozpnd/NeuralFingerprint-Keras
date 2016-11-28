@@ -42,8 +42,10 @@ dists_nfp = np.hstack([distance(x, y) for x in nfp for y in nfp])
 print(dists_ecfp.sum())
 print(dists_nfp.sum())
 plt.plot(dists_ecfp, dists_nfp, '.')
+plt.xlabel('distances using ECFP')
+plt.ylabel('distances using NFP')
 plt.savefig('compare.png')
-print('correlation of 2 FP:%f' % np.corrcoef(dists_ecfp, dists_nfp)[0, 1])
+print('correlation between  two FP:%f' % np.corrcoef(dists_ecfp, dists_nfp)[0, 1])
 
 
 

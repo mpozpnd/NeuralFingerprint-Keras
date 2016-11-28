@@ -10,8 +10,7 @@ import os
 import sys
 sys.path.append(os.curdir)
 
-from keras.layers import Dense, Activation
-from keras import regularizers
+from keras.layers import Dense, Activation, Input
 from keras.models import Sequential
 
 from nfp_keras.nfplayer import NFPLayer
@@ -27,8 +26,9 @@ args = ps.parse_args()
 
 
 model = Sequential()
-model.add(NFPLayer(2048, 62, 5, input_shape=(24586, ) ))
-model.add(Dense(1024, input_dim=2048))
+model.add(Dense(output_dim=1024, input_dim=2048))
+#model.add(Activation('relu'))
+#model.add(Dense(1024))
 model.add(Activation('relu'))
 model.add(Dense(1))
 
@@ -53,5 +53,5 @@ test_y = data_y[n_tr + n_va: n_tr + n_va + n_te]
 model.fit(train_x, train_y, batch_size=batch_size, nb_epoch=20,
           validation_data=(valid_x, valid_y))
 
-print(model.evaluate(test_x, test_y, batch_size=batch_size))
+print(model.evaluate(test_x, test_y))
 
