@@ -16,7 +16,8 @@ from keras.layers import Dense
 data_x = gen_feature_vector_from_sdf('hogepiyo.sdf')
 
 model = Sequential()
-model.add(NFPLayer(2048, 62, 5, input_shape=(24586, )))
+# you should pass "batch_input_shape".Since NFPLayer must know batch_size before model.compile.
+model.add(NFPLayer(2048, 62, 5, batch_input_shape=(batch_size, 24586,)))
 model.add(Dense(1))
 ....
 ```
