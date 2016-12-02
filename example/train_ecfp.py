@@ -38,9 +38,10 @@ data_x = np.load(args.input_data_x)
 data_y = np.load(args.input_data_y)
 
 n_tr = 800
-n_va = 150
-n_te = 150
-batch_size = 1
+n_va = 100
+n_te = 200
+batch_size = 100
+nb_epoch = 100
 
 train_x = data_x[:n_tr]
 valid_x = data_x[n_tr: n_tr + n_va]
@@ -50,7 +51,7 @@ train_y = data_y[:n_tr]
 valid_y = data_y[n_tr: n_tr + n_va]
 test_y = data_y[n_tr + n_va: n_tr + n_va + n_te]
 
-model.fit(train_x, train_y, batch_size=batch_size, nb_epoch=20,
+model.fit(train_x, train_y, batch_size=batch_size, nb_epoch=nb_epoch,
           validation_data=(valid_x, valid_y))
 
 print(model.evaluate(test_x, test_y))

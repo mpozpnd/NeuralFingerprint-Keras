@@ -60,27 +60,32 @@ class NFPLayer(Layer):
         self.trainable_weights = self.H + self.W
 
     def call(self, x, mask=None):
-        atom_num = x[0].astype("int32")[0]
-        output = K.variable(np.zeros([self.output_dim]))
+        def _calc(x):
+            atom_num = x[0].astype("int32")[0]
+            output = K.variable(np.zeros([self.output_dim]))
 
-        atom_feature_len = atom_num * self.N_dim_atom
-        adj_mat_len = atom_num * atom_num
-        bond_atom_len = atom_num * atom_num * self.N_dim_bond
+            atom_feature_len = atom_num * self.N_dim_atom
+            adj_mat_len = atom_num * atom_num
+            bond_atom_len = atom_num * atom_num * self.N_dim_bond
 
-        # reshape 1-d vector to 2-d and 3-d matrix
-        feature = K.theano.tensor.reshape(x[:, 1:1 + atom_feature_len], [atom_num, self.N_dim_atom])
-        adj_mat = K.theano.tensor.reshape(x[:, 1 + atom_feature_len: 1 + atom_feature_len + adj_mat_len], [atom_num, atom_num])
-        bond_feature = K.theano.tensor.reshape(x[:, 1 + atom_feature_len + adj_mat_len: 1 + atom_feature_len + adj_mat_len + bond_atom_len], [atom_num, atom_num, self.N_dim_bond])
+            # reshape 1-d vector to 2-d and 3-d matrix
+            feature = K.theano.tensor.reshape(x[:, 1:1 + atom_feature_len], [atom_num, self.N_dim_atom])
+            adj_mat = K.theano.tensor.reshape(x[:, 1 + atom_feature_len: 1 + atom_feature_len + adj_mat_len], [atom_num, atom_num])
+            bond_feature = K.theano.tensor.reshape(x[:, 1 + atom_feature_len + adj_mat_len: 1 + atom_feature_len + adj_mat_len + bond_atom_len], [atom_num, atom_num, self.N_dim_bond])
 
-        for i in range(self.radius):
-            bond_ = K.theano.tensor.diagonal(K.dot(adj_mat, bond_feature), 0, 1, 0).T
-            atom_ = K.dot(adj_mat, feature[:, :self.N_dim_atom])
-            v = K.theano.tensor.concatenate([bond_, atom_], axis=1)
-            feature = K.sigmoid(K.dot(v, self.H[i]))
-            i = K.softmax(K.dot(feature, self.W[i]))
-            output += K.sum(i, axis=0)
+            for i in range(self.radius):
+                bond_ = K.theano.tensor.diagonal(K.dot(adj_mat, bond_feature), 0, 1, 0).T
+                atom_ = K.dot(adj_mat, feature[:, :self.N_dim_atom])
+                v = K.theano.tensor.concatenate([bond_, atom_], axis=1)
+                feature = K.sigmoid(K.dot(v, self.H[i]))
+                i = K.softmax(K.dot(feature, self.W[i]))
+                output += K.sum(i, axis=0)
 
-        return output.dimshuffle(['x', 0])
+            return output.dimshuffle(['x', 0])
+
+        batch_size = self.batch_input_shape[0]
+        data_rows = K.theano.tensor.split(x,[1 for x in range(batch_size)],batch_size)
+        return K.theano.tensor.concatenate([_calc(x_) for x_ in data_rows],axis = 0)
 
     def get_output_shape_for(self, input_shape):
         return (input_shape[0], self.output_dim)

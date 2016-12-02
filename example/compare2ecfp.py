@@ -32,9 +32,10 @@ def distance(x, y):
 ecfp = np.load(args.ecfp4_data)[:50]
 data_x = np.load(args.input_data)[:50]
 
-layer = NFPLayer(2048, 62, 5, large_weights=True, )
+layer = NFPLayer(2048, 62, 5, large_weights=True, batch_input_shape=(2, 24586,))
 layer.build(input_shape=24586)
-nfp = np.vstack([layer.call(K.variable(x.reshape([1,x.shape[0]]))).eval() for x in data_x])
+datas = [data_x[i: i+2] for i in range(0,len(data_x),2)]
+nfp = np.vstack([layer.call(K.variable(x)).eval() for x in datas])
 
 dists_ecfp = np.hstack([distance(x, y) for x in ecfp for y in ecfp])
 dists_nfp = np.hstack([distance(x, y) for x in nfp for y in nfp])
